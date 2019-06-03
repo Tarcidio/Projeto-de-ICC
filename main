@@ -1,1 +1,183 @@
-Teste
+#include <stdio.h>
+#include <stdlib.h>
+#include <locale.h>
+#include <iostream>
+#include <conio.h>
+#include <string>
+
+using namespace std;
+
+void limparTela(){
+    system("CLS");
+}
+
+void menuPrincipal();
+void calendario();
+
+void teclaVoltar(){
+    cout << "     ______\n";
+    cout << "<-- |Voltar|\n";
+    cout << "     ------ \n";
+}
+
+void testarErro(FILE *arquivo){
+    if(arquivo == NULL){
+        cout << "\n\nERRO EM ABERTURA DE ARQUIVOS";
+        exit(0);
+    }
+}
+
+void exibeCalendario(){
+    int i;
+
+    teclaVoltar();
+    cout << " _____________________________________________________________________ \n";
+    cout << "|   DOM   |   SEG   |   TER   |   QUA   |   QUI   |   SEX   |   SAB   |\n";
+    cout << " --------------------------------------------------------------------- \n";
+    for(i = 0; i < 9; i ++)
+        cout << "|         |         |         |         |         |         |         |\n";
+    cout << "|_________|_________|_________|_________|_________|_________|_________|\n";
+}
+
+void adicionaFixadas(){
+    limparTela();
+
+    teclaVoltar();
+    cout<< "               ADICIONAR TAREFAS\n\n";
+    //Esse é um rascunho de como será adicionado as informações das tarefas, porém, pretendo mudar
+    cout<< "Nessa aba, será solicitado:\n";
+    cout<< " 1- Nome da Tarefa;\n";
+    cout<< " 2- Dias da semana que será executada;\n";
+    cout<< " 3- Número de responsáveis;\n";
+    cout<< " 4- Descrição da tarefa;\n";
+
+    FILE *lista = fopen("fixadasLista.txt", "w");
+    char texto[100];
+
+    testarErro(lista);
+
+    cout << "Primeiro, digite o nome da tarefa:";
+    cin >> texto;
+}
+
+void tarefasFixadas(){
+    limparTela();
+
+    teclaVoltar();
+    cout << "              TAREFAS FIXADAS\n\n";
+    cout << "Listas de tarefas fixadas:\n";
+
+    FILE *lista = fopen("fixadasLista.txt", "r");
+    char texto[100];
+
+    testarErro(lista);
+
+    while( !feof(lista) ){
+        fgets(texto, sizeof(texto), lista);
+        //fscanf(lista, "%s", texto);
+        cout << texto;
+    }
+
+    fclose(lista);
+
+    cout << "\n\nInsira um comando\n";
+    cout << "1- Adicionar novas tarefas fixas\n";
+    cout << "2- Visualizar alguma tarefa fixa\n";
+    cout << "3- Excluir alguma tarefa fixa\n";
+
+    char opcao;
+
+    opcao = getch();
+
+    switch(opcao){
+        case -32:
+            opcao = getch();
+            if(opcao == 75)
+                calendario();
+            break;
+        case  '1':
+            adicionaFixadas();
+            break;
+        case '2':
+            break;
+        case '3':
+            break;
+    }
+}
+
+void calendario(){
+    limparTela();
+
+    exibeCalendario();
+
+    cout << "\nInsira um comando\n";
+    cout << "1- Inserir tarefas fixadas\n";
+    cout << "2- Inserir tarefas semanais\n";
+    cout << "3- Inserir tarefas mensais\n";
+
+
+    char opcao;
+
+    opcao = getch();
+
+    switch(opcao){
+        case -32:
+            opcao = getch();
+            if(opcao == 75)
+                menuPrincipal();
+            break;
+        case  '1':
+            tarefasFixadas();
+            break;
+        case '2':
+            break;
+        case '3':
+            break;
+    }
+}
+
+void menuPrincipal(){
+    char opcao;
+    int cont = 0;
+
+    while(opcao < 49 || opcao > 52){
+        limparTela();
+        cout << "    Aplicação ComApp    \n";
+        cout << "1- Calendario\n";
+        cout << "2- Usuario\n";
+        cout << "3- Recado importantes\n";
+        cout << "4- Membros\n";
+
+        if(cont != 0)
+            cout << "\n\nOpção inválida. Digite novamente um novo comando.\n";
+
+        opcao = getch();
+
+        cont ++;
+    }
+
+    cont = 0;
+
+    switch(opcao){
+        case '1':
+            calendario();
+            break;
+        case '2':
+            break;
+        case '3':
+            break;
+        case '4':
+            break;
+    }
+}
+
+int main(){
+    setlocale(LC_ALL, "Portuguese");
+
+    menuPrincipal();
+
+    return 0;
+
+    system("pause");
+}
+
