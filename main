@@ -5,6 +5,7 @@
 #include <conio.h>
 #include <string>
 #include <string.h>
+#include <time.h>
 
 using namespace std;
 
@@ -12,7 +13,7 @@ typedef struct informacoesTarefa{
     char nome[100];
     int responsaveis;
     int semana[7];
-    char descricao[1000];
+    char descricao [10000];
 }tarefas;
 
 void limparTela(){
@@ -21,6 +22,7 @@ void limparTela(){
 
 void menuPrincipal();
 void calendario();
+void tarefasFixadas();
 
 void teclaVoltar(){
     cout << "     ______\n";
@@ -36,22 +38,38 @@ void testarErro(FILE *arquivo){
 }
 
 void exibeCalendario(){
-    int i;
-
+    FILE *arq;
     teclaVoltar();
-    cout << " _____________________________________________________________________ \n";
+
+    cout << "Lista de tarefas no DOMINGO\n";
+
+    cout << "Lista de tarefas na SEGUNDA-FEIRA\n";
+
+    cout << "Lista de tarefas na TERÇA-FEIRA\n";
+
+    cout << "Lista de tarefas na QUARTA-FEIRA\n";
+
+    cout << "Lista de tarefas na QUINTA-FEIRA\n";
+
+    cout << "Lista de tarefas na SEXTA-FEIRA\n";
+
+    cout << "Lista de tarefas no SÁBADO\n";
+
+    /*cout << " _____________________________________________________________________ \n";
     cout << "|   DOM   |   SEG   |   TER   |   QUA   |   QUI   |   SEX   |   SAB   |\n";
     cout << " --------------------------------------------------------------------- \n";
     for(i = 0; i < 9; i ++)
         cout << "|         |         |         |         |         |         |         |\n";
-    cout << "|_________|_________|_________|_________|_________|_________|_________|\n";
+    cout << "|_________|_________|_________|_________|_________|_________|_________|\n";*/
+
 }
 
 void adicionarNaLista(tarefas *nomeDaTarefa){
     FILE *lista = fopen("fixadasLista.txt", "a");
     testarErro(lista);
-    fputs("\n", lista);
     //Nao podemos mudar esse scanf para fgets
+    //Também não podemos colocar o \n do fputs de baixo do fputs que imprime no arquivo, ouviu bem tarcídio?
+    fputs("\n", lista);
     fputs(nomeDaTarefa->nome, lista);
     fclose(lista);
 }
@@ -107,6 +125,42 @@ void ordenaVetor(int *vetor, int indice){
             }
 }
 
+void adicionarNaDescricaoTarefas(tarefas *nomeDaTarefa){
+    char *temp = (char*)calloc(100, sizeof(char));
+    nomePasta(nomeDaTarefa, temp);
+    strcat(temp, ".txt");
+
+    FILE *afazer = fopen(temp, "at");
+    testarErro(afazer);
+
+    fputs("\n", afazer);
+    fputs(nomeDaTarefa->descricao, afazer);
+
+    fclose(afazer);
+
+    afazer = NULL;
+
+    free(temp);
+}
+
+void adicionaNoCalendario(tarefas *nomeDaTarefa, char *stringando){
+    char *testando = (char*)calloc(100, sizeof(char));
+
+    strcpy(testando, stringando);
+    strcat(testando, ".txt");
+
+    FILE *arq = fopen(testando, "a+");
+    testarErro(arq);
+
+    fprintf(arq, "\n");
+    fprintf(arq, "%s", nomeDaTarefa->nome);
+
+    fclose(arq);
+    free(testando);
+
+    arq = NULL;
+}
+
 void adicionaSemana(tarefas *nomeDaTarefa, int *vetor, int indice){
     char *temp = (char*)calloc(100, sizeof(char));
     nomePasta(nomeDaTarefa, temp);
@@ -119,8 +173,38 @@ void adicionaSemana(tarefas *nomeDaTarefa, int *vetor, int indice){
 
     int i;
 
-    for(i = 0; i < indice; i++)
-        fprintf(afazer, "%d", vetor[i]);
+    for(i = 0; i < indice; i++){
+        switch(vetor[i]){
+            case 1:
+                fprintf(afazer, "domingo, ");
+                adicionaNoCalendario(nomeDaTarefa, "semana/domingo");
+                break;
+            case 2:
+                fprintf(afazer, "segunda, ");
+                adicionaNoCalendario(nomeDaTarefa, "semana/segunda");
+                break;
+            case 3:
+                fprintf(afazer, "terca, ");
+                adicionaNoCalendario(nomeDaTarefa, "semana/terca");
+                break;
+            case 4:
+                fprintf(afazer, "quarta, ");
+                adicionaNoCalendario(nomeDaTarefa, "semana/quarta");
+                break;
+            case 5:
+                fprintf(afazer, "quinta, ");
+                adicionaNoCalendario(nomeDaTarefa, "semana/quinta");
+                break;
+            case 6:
+                fprintf(afazer, "sexta, ");
+                adicionaNoCalendario(nomeDaTarefa, "semana/sexta");
+                break;
+            case 7:
+                fprintf(afazer, "sabado, ");
+                adicionaNoCalendario(nomeDaTarefa, "semana/sabado");
+                break;
+        }
+    }
 
     fclose(afazer);
 
@@ -129,11 +213,23 @@ void adicionaSemana(tarefas *nomeDaTarefa, int *vetor, int indice){
     free(temp);
 }
 
-int *adicionaVetor(int *vetor, int *indice, int num){
+
+int *adicionaVetor(int *vetor, int *indice, int num, int *cuidado){
+    int i, cont = 0;
+
+    //Verifica se já foi enviado pelo menos uma vez o num
+    for(i = 0; i < (*indice); i ++)
+        if(vetor[i] == num){
+            (*cuidado)++;
+            return vetor;
+        }
+
     (*indice)++;
     vetor = (int*)realloc(vetor, (*indice)*sizeof(int));
     vetor[(*indice) - 1] = num;
     return vetor;
+
+
 }
 
 void adicionaFixadas(){
@@ -146,7 +242,7 @@ void adicionaFixadas(){
     cout<< " 1- Nome da Tarefa;\n";
     cout<< " 2- Dias da semana que será executada;\n";
     cout<< " 3- Número de responsáveis;\n";
-    cout<< " 4- Descrição da tarefa;\n";
+    cout<< " 4- Descrição da tarefa;\n\n";
 
     tarefas *work = (tarefas*)calloc(1, sizeof(tarefas));
     //Criar uma funcao que proiba o uso de caracteres especiais
@@ -156,70 +252,96 @@ void adicionaFixadas(){
     adicionarNaLista(work);
     adicionarNaPastaTarefas(work);
 
-    cout << "Segundo, digite o número de responsáveis: ";
+    cout << "\nSegundo, digite o número de responsáveis: ";
     scanf("%d", &work->responsaveis);
 
     adicionarNaPastaBinario(work);
 
-    cout << "Terceiro, selecione os dias da semana:\n";
-    cout << "1- Domingo\n";
-    cout << "2- Segunda-feira\n";
-    cout << "3- Terça-feira\n";
-    cout << "4- Quarta-feira\n";
-    cout << "5- Quinta-feira\n";
-    cout << "6- Sexta-feira\n";
-    cout << "7- Sábado-feira\n";
-    
-    cout << "Após selecionar todos os dias, aperte a tecla \" ESPAÇO\" ";
+    cout << "\nTerceiro, selecione os dias da semana:\n";
+    cout << " 1- Domingo\n";
+    cout << " 2- Segunda-feira\n";
+    cout << " 3- Terça-feira\n";
+    cout << " 4- Quarta-feira\n";
+    cout << " 5- Quinta-feira\n";
+    cout << " 6- Sexta-feira\n";
+    cout << " 7- Sábado-feira\n";
+
+    cout << "\nOBS:Após selecionar todos os dias, aperte a tecla \"ENTER\" ";
     //cout << "Pressione enter para confirmar ou selecione mais dias\n"
 
     char opcao;
+    int cuidado = 0;
     int a = 0;
     int *vetor = (int*)calloc(a, sizeof(int));
     int num;
 
-    cout << "Adicionando:";
-    while(opcao != 32){
+    cout << "\nAdicionando:";
+    while(opcao != 13){
         opcao = getch();
         switch(opcao){
             case '1':
-                vetor = adicionaVetor(vetor, &a, 1);
-                cout << "\n Domingo";
+                vetor = adicionaVetor(vetor, &a, 1, &cuidado);
+                if(cuidado == 0)
+                    cout << "\n Domingo";
                 break;
             case '2':
-                vetor = adicionaVetor(vetor, &a, 2);
-                cout << "\n Segunda-feira";
+                vetor = adicionaVetor(vetor, &a, 2, &cuidado);
+                if(cuidado == 0)
+                    cout << "\n Segunda-feira";
                 break;
             case '3':
-                vetor = adicionaVetor(vetor, &a, 3);
-                cout << "\n Terça-feira";
+                vetor = adicionaVetor(vetor, &a, 3, &cuidado);
+                if(cuidado == 0)
+                    cout << "\n Terça-feira";
                 break;
             case '4':
-                vetor = adicionaVetor(vetor, &a, 4);
-                cout << "\n Quarta-feira";
+                vetor = adicionaVetor(vetor, &a, 4, &cuidado);
+                if(cuidado == 0)
+                    cout << "\n Quarta-feira";
                 break;
             case '5':
-                vetor = adicionaVetor(vetor, &a, 5);
-                cout << "\n Quinta-feira";
+                vetor = adicionaVetor(vetor, &a, 5, &cuidado);
+                if(cuidado == 0)
+                    cout << "\n Quinta-feira";
                 break;
             case '6':
-                vetor = adicionaVetor(vetor, &a, 6);
-                cout << "\n Sexta-feira";
+                vetor = adicionaVetor(vetor, &a, 6, &cuidado);
+                if(cuidado == 0)
+                    cout << "\n Sexta-feira";
                 break;
             case '7':
-                vetor = adicionaVetor(vetor, &a, 7);
-                cout << "\n Sábado";
+                vetor = adicionaVetor(vetor, &a, 7, &cuidado);
+                if(cuidado == 0)
+                    cout << "\n Sábado";
+                break;
+            case 8:
+
+                //parei aqui
+
+
+                cout << "\r (esse dia foi excluído na lista)";
+                a--;
+                vetor = (int*)realloc(vetor,a*sizeof(int));
+
                 break;
         }
+        cuidado = 0;
     }
 
     ordenaVetor(vetor, a);
 
     adicionaSemana(work, vetor, a);
-    
-    cout << "Adicione, agora, uma descrição:";
-    
-    
+
+    free(vetor);
+
+    cout << "\n\nAdicione, agora, uma descrição(tecle ENTER ao terminar):";
+    setbuf(stdin, NULL);
+    fgets(work->descricao, sizeof(work->descricao), stdin);
+    adicionarNaDescricaoTarefas(work);
+
+    free(work);
+
+    tarefasFixadas();
 }
 
 void tarefasFixadas(){
@@ -236,17 +358,20 @@ void tarefasFixadas(){
         FILE *lista = fopen("fixadasLista.txt", "r");
         char texto[100];
 
-        testarErro(lista);
-
-        while( !feof(lista) ){
-            fgets(texto, sizeof(texto), lista);
-            //fscanf(lista, "%s", texto);
-            cout << texto;
+        //testarErro(lista);
+        if(lista == NULL){
+            cout << "\n\nAinda não há nenhuma tarefa";
+        } else{
+            while( !feof(lista) ){
+                fgets(texto, sizeof(texto), lista);
+                //fscanf(lista, "%s", texto);
+                cout << texto;
+            }
         }
 
         fclose(lista);
 
-        cout << "\n\nInsira um comando\n";
+        cout << "\n\n\nInsira um comando\n";
         cout << "1- Adicionar novas tarefas fixas\n";
         cout << "2- Visualizar alguma tarefa fixa\n";
         cout << "3- Excluir alguma tarefa fixa\n";
