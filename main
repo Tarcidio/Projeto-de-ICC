@@ -6,6 +6,7 @@
 #include <string>
 #include <string.h>
 #include <time.h>
+#include <windows.h>
 
 using namespace std;
 
@@ -23,6 +24,7 @@ void limparTela(){
 void menuPrincipal();
 void calendario();
 void tarefasFixadas();
+void recados();
 
 void teclaVoltar(){
     cout << "     ______\n";
@@ -430,7 +432,7 @@ void calendario(){
             if(opcao == 75)
                 menuPrincipal();
             break;
-        case  '1':
+        case '1':
             tarefasFixadas();
             break;
         case '2':
@@ -438,6 +440,171 @@ void calendario(){
         case '3':
             break;
     }
+}
+
+void adicionarMensagem(){
+    limparTela();
+    char *texto = (char*)calloc(1000, sizeof(char));
+    char *temp = (char*)calloc(100, sizeof(char));
+
+    cout << "Digite o título da sua mensagem:\n";
+    setbuf(stdin, NULL);
+    scanf("%[^\n]s", texto);
+
+    strcpy(temp, "mensagens/");
+    strcat(temp, texto);
+    strcat(temp, ".txt");
+    FILE *arqmsg = fopen(temp, "a+");
+    testarErro(arqmsg);
+
+    FILE *salva = fopen("mensagens/salva.txt", "a+");
+    testarErro(salva);
+    fprintf(salva, "\n%s", texto);
+
+    //Por que quando coloca um caractere especial no final, replica duas vezes?
+    cout << "Descrição da mensagem:\n";
+    setbuf(stdin, NULL);
+    scanf("%[^\n]s", texto);
+    fprintf(arqmsg, "%s", texto);
+
+
+    fclose(salva);
+    fclose(arqmsg);
+    free(salva);
+    free(temp);
+    free(texto);
+
+    recados();
+}
+
+void excluirMensagem(int *num){
+    char *titulo = (char*)calloc(50, sizeof(char));
+    char *temp = (char*)calloc(50, sizeof(char));
+    char *transferindo = (char*)calloc(5, sizeof(char));
+
+    cout << "\n\n------------------------------------------------------------------";
+    cout << "\n\nDigite o nome da mensagem que você deseja excluir\n";
+    setbuf(stdin, NULL);
+    scanf("%[^\n]s", titulo);
+    strcpy(temp, "mensagens/");
+    strcat(temp, titulo);
+    strcat(temp, ".txt");
+
+    if(remove(temp) == 0){
+        FILE *salva = fopen("mensagens/salva.txt", "a+");
+        testarErro(salva);
+        FILE *transfere = fopen("mensagens/transfere.txt", "a+");
+        testarErro(transfere);
+
+        while( !feof(salva) ){
+            fscanf(salva, "\n%[^\n]s", transferindo);
+            if(strcmp(transferindo, titulo) != 0){
+                fprintf(transfere, "\n%s", transferindo);
+            }
+        }
+
+        fclose(transfere);
+        fclose(salva);
+        free(salva);
+        free(transfere);
+
+        if(remove("mensagens/salva.txt") != 0){
+            cout << "\nErro ao deletar mensagem.\n";
+            cout << "\nO arquivo salvar não foi excluído.\n";
+            exit(1);
+        }
+
+        rename("mensagens/transfere.txt", "mensagens/salva.txt");
+    }else{
+        cout << "\nErro ao deletar a mensagem.\n";
+        cout << " Talvez ela não exista.\n";
+        exit(1);
+    }
+
+    free(titulo);
+    free(temp);
+    free(transferindo);
+
+    recados();
+
+}
+
+void recados(){
+        char *leitura = (char*)calloc(50, sizeof(char));
+        char *temp = (char*)calloc(50, sizeof(char));
+        char *recado = (char*)calloc(1000, sizeof(char));
+        char opcao;
+        int cont = 0;
+        int num;
+
+        limparTela();
+        teclaVoltar();
+        cout << "          MENSAGENS IMPORTANTES\n";
+        cout << "\nComandos:\n";
+        cout << "1- Adicionar mensagens\n";
+        cout << "2- Excluir mensagens\n";
+
+        FILE *salva = fopen("mensagens/salva.txt", "rt");
+        if(salva == NULL)
+            cout << "\nAinda não há nenhuma mensagem";
+        else{
+            //fgets(lixo, sizeof(lixo), salva);
+            while( !feof(salva) ){
+
+                setbuf(stdin, NULL);
+                fscanf(salva, "\n%[^\n]s", leitura);
+
+                strcpy(temp, "mensagens/");
+                strcat(temp, leitura);
+                strcat(temp, ".txt");
+                FILE *arqdescricao = fopen(temp, "r");
+                testarErro(arqdescricao);
+                cout << "\n\nTítulo: " << leitura << "\nDescrição: ";
+
+                while( !feof(arqdescricao)){
+                    fgets(recado, sizeof(recado), arqdescricao);
+                    cout << recado;
+                }
+
+                fclose(arqdescricao);
+                free(arqdescricao);
+
+            }
+        }
+
+        opcao = getch();
+
+        //Eu poderia ter feito isso para todas as outras funções, não é?
+        while( (opcao < 49 || opcao > 51) && (opcao != -32) ){
+            if(cont == 0){
+                cout << "\n\nOpção inválida. Digite novamente um novo comando.\n";
+                cont++;
+            }
+            opcao = getch();
+        }
+
+        fclose(salva);
+        free(salva);
+        free(leitura);
+        free(temp);
+        free(recado);
+
+        switch(opcao){
+            case -32:
+                opcao = getch();
+                if(opcao == 75)
+                    menuPrincipal();
+                break;
+            case '1':
+                adicionarMensagem();
+                break;
+            case '2':
+                excluirMensagem(&num);
+                break;
+            default:
+                cout << "hello";
+                break;
+        }
 }
 
 void menuPrincipal(){
@@ -469,6 +636,9 @@ void menuPrincipal(){
         case '2':
             break;
         case '3':
+            //Essa função levará a outras que possuem alguns comandos em comum. Portanto,
+            //seria interessante se fosse criado uma função para essa semelhanças
+            recados();
             break;
         case '4':
             break;
@@ -477,6 +647,8 @@ void menuPrincipal(){
 
 int main(){
     setlocale(LC_ALL, "Portuguese");
+
+    SetConsoleTitle("ComApp");
 
     menuPrincipal();
 
