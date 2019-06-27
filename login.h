@@ -1,6 +1,5 @@
 void login(char *name){
     for(;;){                                            //mantendo a tela de login até a entrada do usuário
-        limparTela();
         int comando = 0;
         FILE *nick;
 
