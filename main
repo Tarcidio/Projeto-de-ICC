@@ -77,14 +77,6 @@ void exibeCalendario(){
     abreFecha("sexta");
     cout << "\nLista de tarefas no SÁBADO\n";
     abreFecha("sabado");
-
-    /*cout << " _____________________________________________________________________ \n";
-    cout << "|   DOM   |   SEG   |   TER   |   QUA   |   QUI   |   SEX   |   SAB   |\n";
-    cout << " --------------------------------------------------------------------- \n";
-    for(i = 0; i < 9; i ++)
-        cout << "|         |         |         |         |         |         |         |\n";
-    cout << "|_________|_________|_________|_________|_________|_________|_________|\n";*/
-
 }
 
 void adicionarNaLista(tarefas *nomeDaTarefa){
@@ -446,19 +438,6 @@ void escalar(){
             opcao = getch();
         }
 
-        switch(opcao){
-            case '1':
-                FILE *arq3 = fopen(temp, "a+");
-                break;
-            case '2':
-
-                break;
-            case -32:
-                opcao = getch();
-                if(opcao == 75)
-                    tarefasFixadas();
-                break;
-        }
     }
 
 }
@@ -642,6 +621,7 @@ void recados(){
         char opcao;
         int cont = 0;
         int num;
+        int delSalva = 0;
 
         limparTela();
         teclaVoltar();
@@ -657,6 +637,7 @@ void recados(){
             //fgets(lixo, sizeof(lixo), salva);
             while( !feof(salva) ){
 
+
                 setbuf(stdin, NULL);
                 fscanf(salva, "\n%[^\n]s", leitura);
 
@@ -664,7 +645,12 @@ void recados(){
                 strcat(temp, leitura);
                 strcat(temp, ".txt");
                 FILE *arqdescricao = fopen(temp, "r");
-                testarErro(arqdescricao);
+                if(arqdescricao == NULL){
+                    delSalva = 1;
+                    fclose(arqdescricao);
+                    free(arqdescricao);
+                    break;
+                }
                 cout << "\n\nTítulo: " << leitura << "\nDescrição: ";
 
                 while( !feof(arqdescricao)){
@@ -695,6 +681,10 @@ void recados(){
         free(temp);
         free(recado);
 
+        if(delSalva == 1){
+            remove("mensagens/salva.txt");
+        }
+
         switch(opcao){
             case -32:
                 opcao = getch();
@@ -713,6 +703,161 @@ void recados(){
         }
 }
 
+void showMembros(){
+    FILE *arqptr;
+    char *lixo = (char*)calloc(2,sizeof(char));
+    arqptr = fopen("dadosLogin.txt","r");
+    fgets(lixo,2,arqptr);
+    free(lixo);
+    while(!feof(arqptr)){
+        char *nome = (char*)calloc(30,sizeof(char));
+        fgets(nome,30,arqptr);
+        printf("%s",nome);
+        free(nome);
+    }
+    printf("\n");
+    fclose(arqptr);
+}
+
+void addMembros(){
+    int sair = 0;
+    char nome[30], senha[30], pas[100];
+    FILE *pass, *nick;
+
+    while(sair != 1){
+        cout << "\nEscreva seu nome de usuário (use, no máximo, 30 caracteres):\n";
+        setbuf(stdin,NULL);
+        scanf("%[^\n]s", nome);
+        setbuf(stdin, NULL);
+        limparTela();
+        //Podemos colocar uma função que veriica se o usuario tem menos de 20 caracteres
+
+        cout << "\nQual será sua senha, " << nome <<  "?\n";
+        scanf("%[^\n]s", senha);
+        setbuf(stdin, NULL);
+        limparTela();
+
+        cout << "\nSeu nome é: " << nome;
+        cout << "\nSua senha é: " << senha;
+
+        cout << "\n\nGostaria de finalizar ou reiniciar o cadastro?" ;
+        cout << "Caso reinicie, esse usuário e essa senha não serão cadastradas\n";
+        cout << "1 - Finalizar\n";
+        cout << "2 - Reiniciar\n\n";
+        //Podeira ter a opção de cancelar o registro
+        setbuf(stdin,NULL);
+        scanf("%d", &sair);
+        setbuf(stdin,NULL);
+        limparTela();
+    }
+    strcpy(pas,"senhas/");
+    strcat(pas,nome);
+    strcat(pas,".txt");
+    pass = fopen(pas,"a");
+    fprintf(pass,"%s",senha);
+
+    nick = fopen("dadosLogin.txt","a");
+    fprintf(nick,"\n%s",nome);
+    fclose(nick);
+    fclose(pass);
+    free(nick);
+    free(pass);
+}
+
+void removeMembros(){
+    char *membro = (char*)calloc(50, sizeof(char));
+    char *temp = (char*)calloc(50, sizeof(char));
+    char *transferindo = (char*)calloc(5, sizeof(char));
+
+    cout << "\n\n------------------------------------------------------------------";
+    cout << "\n\nDigite o nome do membro que você deseja remover\n";
+    setbuf(stdin, NULL);
+    scanf("%[^\n]s", membro);
+    setbuf(stdin,NULL);
+    strcpy(temp, "senhas/");
+    strcat(temp, membro);
+    strcat(temp, ".txt");
+
+    if(remove(temp) == 0){
+        FILE *dadosLogin = fopen("dadosLogin.txt", "a+");
+        testarErro(dadosLogin);
+        FILE *transfere = fopen("transfere.txt", "a+");
+        testarErro(transfere);
+
+        while( !feof(dadosLogin) ){
+            setbuf(stdin,NULL);
+            fscanf(dadosLogin, "\n%[^\n]s", transferindo);
+            setbuf(stdin,NULL);
+            if(strcmp(transferindo, membro) != 0){
+                fprintf(transfere, "\n%s", transferindo);
+            }
+        }
+
+        fclose(transfere);
+        fclose(dadosLogin);
+        free(dadosLogin);
+        free(transfere);
+
+        if(remove("dadosLogin.txt") != 0){
+            cout << "\nErro ao deletar membro.\n";
+            cout << "\nO arquivo salvar não foi excluído.\n";
+            exit(1);
+        }
+
+        rename("transfere.txt", "dadosLogin.txt");
+    }else{
+        cout << "\nErro ao deletar o membro.\n";
+        cout << " Talvez ele não exista.\n";
+        exit(1);
+    }
+
+    free(membro);
+    free(temp);
+    free(transferindo);
+
+}
+
+void membros(){
+    char opcao;
+    int cont = 0;
+
+    while(opcao < 49 || opcao > 52){
+        limparTela();
+        cout << "    Membros    \n";
+        cout <<"--------------------------------------\n";
+        showMembros();
+        cout <<"\n--------------------------------------\n\n";
+        cout << "1- Adicionar Membros\n";
+        cout << "2- Excluir Membros\n";
+        cout << "3- Voltar ao Menu\n";
+
+        if(cont != 0)
+            cout << "\n\nOpção inválida. Digite novamente um novo comando.\n";
+
+        opcao = getch();
+
+        cont ++;
+    }
+
+    cont = 0;
+
+    limparTela();
+
+    switch(opcao){
+        case '1':
+            addMembros();
+            break;
+        case '2':
+            removeMembros();
+            break;
+        case '3':
+            menuPrincipal();
+            break;
+    }
+
+    membros();
+}
+
 void menuPrincipal(){
     char opcao;
     int cont = 0;
@@ -721,9 +866,8 @@ void menuPrincipal(){
         limparTela();
         cout << "    Aplicação ComApp    \n";
         cout << "1- Calendario\n";
-        cout << "2- Usuario\n";
+        cout << "2- Membros\n";
         cout << "3- Mensagens importantes\n";
-        cout << "4- Membros\n";
 
         if(cont != 0)
             cout << "\n\nOpção inválida. Digite novamente um novo comando.\n";
@@ -740,13 +884,12 @@ void menuPrincipal(){
             calendario();
             break;
         case '2':
+            membros();
             break;
         case '3':
             //Essa função levará a outras que possuem alguns comandos em comum. Portanto,
             //seria interessante se fosse criado uma função para essa semelhanças
             recados();
-            break;
-        case '4':
             break;
     }
 }
