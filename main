@@ -10,21 +10,24 @@
 
 using namespace std;
 
+void menuPrincipal();
+void calendario();
+void tarefasFixadas();
+void recados();
+void limparTela();
+
+#include "login.h"
+
+void limparTela(){
+    system("CLS");
+}
+
 typedef struct informacoesTarefa{
     char nome[100];
     int responsaveis;
     int semana[7];
     char descricao [10000];
 }tarefas;
-
-void limparTela(){
-    system("CLS");
-}
-
-void menuPrincipal();
-void calendario();
-void tarefasFixadas();
-void recados();
 
 void teclaVoltar(){
     cout << "     ______\n";
@@ -39,23 +42,40 @@ void testarErro(FILE *arquivo){
     }
 }
 
+void abreFecha(char *diaDaSemana){
+    char texto[100];
+    char temp[100];
+
+    strcpy(temp, "semana/");
+    strcat(temp, diaDaSemana);
+    strcat(temp, ".txt");
+
+    FILE *arq = fopen(temp, "r");
+   if(arq == NULL)
+        cout << "Não há tarefas nesse dia";
+    while( !feof(arq) ){
+        fscanf(arq, "\n%[^\n]s", texto);
+        cout << "\n " << texto;
+    }
+}
+
 void exibeCalendario(){
-    FILE *arq;
     teclaVoltar();
 
     cout << "Lista de tarefas no DOMINGO\n";
-
-    cout << "Lista de tarefas na SEGUNDA-FEIRA\n";
-
-    cout << "Lista de tarefas na TERÇA-FEIRA\n";
-
-    cout << "Lista de tarefas na QUARTA-FEIRA\n";
-
-    cout << "Lista de tarefas na QUINTA-FEIRA\n";
-
-    cout << "Lista de tarefas na SEXTA-FEIRA\n";
-
-    cout << "Lista de tarefas no SÁBADO\n";
+    abreFecha("domingo");
+    cout << "\nLista de tarefas na SEGUNDA-FEIRA\n";
+    abreFecha("segunda");
+    cout << "\nLista de tarefas na TERÇA-FEIRA\n";
+    abreFecha("terca");
+    cout << "\nLista de tarefas na QUARTA-FEIRA\n";
+    abreFecha("quarta");
+    cout << "\nLista de tarefas na QUINTA-FEIRA\n";
+    abreFecha("quinta");
+    cout << "\nLista de tarefas na SEXTA-FEIRA\n";
+    abreFecha("sexta");
+    cout << "\nLista de tarefas no SÁBADO\n";
+    abreFecha("sabado");
 
     /*cout << " _____________________________________________________________________ \n";
     cout << "|   DOM   |   SEG   |   TER   |   QUA   |   QUI   |   SEX   |   SAB   |\n";
@@ -177,6 +197,8 @@ void adicionaSemana(tarefas *nomeDaTarefa, int *vetor, int indice){
 
     for(i = 0; i < indice; i++){
         switch(vetor[i]){
+            //Dava para fazer uma função para todos os cases que enviava o nome "domingo", ou "segunda"..
+            //Isso economizaria linhas
             case 1:
                 fprintf(afazer, "domingo, ");
                 adicionaNoCalendario(nomeDaTarefa, "semana/domingo");
@@ -269,7 +291,6 @@ void adicionaFixadas(){
     cout << " 7- Sábado-feira\n";
 
     cout << "\nOBS:Após selecionar todos os dias, aperte a tecla \"ENTER\" ";
-    //cout << "Pressione enter para confirmar ou selecione mais dias\n"
 
     char opcao;
     int cuidado = 0;
@@ -317,14 +338,10 @@ void adicionaFixadas(){
                     cout << "\n Sábado";
                 break;
             case 8:
-
-                //parei aqui
-
-
+                //PARA MELHORAR! Essa parte do código exclui os dias, porém, mostra apenas em uma linha
                 cout << "\r (esse dia foi excluído na lista)";
                 a--;
                 vetor = (int*)realloc(vetor,a*sizeof(int));
-
                 break;
         }
         cuidado = 0;
@@ -616,7 +633,7 @@ void menuPrincipal(){
         cout << "    Aplicação ComApp    \n";
         cout << "1- Calendario\n";
         cout << "2- Usuario\n";
-        cout << "3- Recado importantes\n";
+        cout << "3- Mensagens importantes\n";
         cout << "4- Membros\n";
 
         if(cont != 0)
@@ -649,6 +666,15 @@ int main(){
     setlocale(LC_ALL, "Portuguese");
 
     SetConsoleTitle("ComApp");
+
+    /*char nome[100];
+    login(nome);
+
+    cout << "\n\n\n---------------------------------------------";
+    cout << "\n\n     Bem-vindo, " << nome;
+    cout << "\n\n---------------------------------------------";
+
+    Sleep(3000);*/
 
     menuPrincipal();
 
