@@ -1,99 +1,115 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-void limparTela(){
-    system("CLS");
-    return;
-}
 void login(char *name){
-    for(;;){                                            //mantendo a tela de login até a entrada do usuário
+    for(;;){                                            //mantendo a tela de login atÃ© a entrada do usuÃ¡rio
+        limparTela();
         int comando = 0;
         FILE *nick;
-        printf("--------------------------------------------------------------------------------\nDigite o número para:\n\n1 - Entrar\n\n2 - Se registrar\n\n--------------------------------------------------------------------------------");
+
+        cout << "--------------------------------------------------------------------------------\n";
+        cout << "\nEnvie um comando:\n";
+        cout << "1 - Entrar\n\n";
+        cout << "2 - Se registrar\n";
+        cout << "\n--------------------------------------------------------------------------------";
+
+        //sugestÃ£o: colocar getch
         scanf("%d", &comando);                          //escolha do comando
         fflush(stdin);
+
         limparTela();
+        //Seria interessante se pudessemos tratar o erro em que o usuÃ¡rio tentar logar quando ainda nÃ£o hÃ¡
+        //nenhum registro de conta
         if(comando == 1){                                               //comando "entrar no app"
-            char nome[30],senha[30],teste[70];
+            char nome[30],senha[30],teste[30];
             int caso = 2;
+
             nick = fopen("dadosLogin.txt","r");
-            printf("\nDigite seu usuário:\n");
+            cout << "\nDigite seu usuÃ¡rio:\n";
             scanf("%[^\n]s", nome);
-            fflush(stdin);
+            setbuf(stdin, NULL);
+
             limparTela();
-            while(!feof(nick)){
+            while( !feof(nick) ){
                 fgets(teste,30,nick);                                              //testando os nomes
                 if(strncmp(teste,nome,strlen(nome)) == 0){
                     caso = 1;
                     break;
                 }
             }
+
+            //Todos esses casos poderiam virar uma funÃ§Ã£o
             if(caso == 1){
                 FILE *pass;
                 char pas[100];
-                strcpy(pas,"SENHAS/");
+
+                strcpy(pas,"senhas/");
                 strcat(pas,nome);
                 strcat(pas,".txt");
                 pass = fopen(pas,"r");
-                printf("\nDigite sua senha:\n");                                        //caso em que o usuario foi encontrado no arquivo
+
+                cout << "\nDigite sua senha:\n";                                        //caso em que o usuario foi encontrado no arquivo
                 scanf("%[^\n]s", senha);
                 fflush(stdin);
+
                 limparTela();
                 fgets(teste,30,pass);
-                if(strncmp(teste,senha,strlen(senha)) == 0){                            //inscrição da senha
+                if(strncmp(teste,senha,strlen(senha)) == 0){                            //inscriÃ§Ã£o da senha
                     fclose(nick);
                     fclose(pass);
                     limparTela();
                     strcpy(name,nome);
                     return;
-
                 }
-                printf("\nSenha Errada! Tente Novamente\n\n");                         //Se a senha estiver errada
+
+                cout << "\nSenha Errada! Tente Novamente\n\n";                         //Se a senha estiver errada
                 fclose(nick);
                 fclose(pass);
             }
-            if(caso == 2)                                                             //caso em que o usuario é inexistente
+            if(caso == 2)                                                             //caso em que o usuario Ã© inexistente
                 printf("\n Usuario Inexistente, por favor registre-se ou reescreva corretamente.\n\n");
 
         }
+
         if(comando == 2){                                                               //Comando de cadastro
             int sair = 0;
             char nome[30], senha[30], pas[100];
             FILE *pass;
+
             while(sair != 1){
-                printf("\nEscreva seu nome de usuário:\n");
+                cout << "\nEscreva seu nome de usuÃ¡rio (use, no mÃ¡ximo, 30 caracteres):\n";
                 scanf("%[^\n]s", nome);
-                fflush(stdin);
-                limparTela();
-                printf("\nQual será sua senha %s?\n", nome);
+                setbuf(stdin, NULL);
+                //Podemos colocar uma funÃ§Ã£o que veriica se o usuario tem menos de 20 caracteres
+
+                cout << "\nQual serÃ¡ sua senha, " << nome <<  "?\n";
                 scanf("%[^\n]s", senha);
-                fflush(stdin);
-                limparTela();
-                printf("\nSeu nome é: %s\nSua senha é: %s\n\nGostaria de finalizar o cadastro?\n\n1 - Sim\n2 - Não\n\n", nome, senha);
+                setbuf(stdin, NULL);
+
+                cout << "\nSeu nome Ã©: " << nome;
+                cout << "\nSua senha Ã©: " << senha;
+
+                cout << "\n\nGostaria de finalizar ou reiniciar o cadastro?" ;
+                cout << "Caso reinicie, esse usuÃ¡rio e essa senha nÃ£o serÃ£o cadastradas\n";
+                cout << "1 - Finalizar\n";
+                cout << "2 - Reiniciar\n\n";
+                //Podeira ter a opÃ§Ã£o de cancelar o registro
                 scanf("%d", &sair);
                 fflush(stdin);
-                limparTela();
             }
-            strcpy(pas,"SENHAS/");
+            strcpy(pas,"senhas/");
             strcat(pas,nome);
             strcat(pas,".txt");
             pass = fopen(pas,"a");
             fprintf(pass,"%s",senha);
+
             nick = fopen("dadosLogin.txt","a");
             fprintf(nick,"%s\n",nome);
             fclose(nick);
             fclose(pass);
+            free(nick);
+            free(pass);
         }
-        if(comando != 1 && comando != 2)
-            printf("\nComando Inválido!\n\n");
+        if(comando != 1 && comando != 2){
+            printf("\nComando InvÃ¡lido!\n\n");
+            system("pause");
+        }
     }
-}
-int main()
-{
-    char logado[30];
-    login(logado);
-    printf("%s", logado);
-    system("pause");
-    return 0;
 }
