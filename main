@@ -51,12 +51,13 @@ void abreFecha(char *diaDaSemana){
     strcat(temp, ".txt");
 
     FILE *arq = fopen(temp, "r");
-   if(arq == NULL)
-        cout << "Não há tarefas nesse dia";
-    while( !feof(arq) ){
-        fscanf(arq, "\n%[^\n]s", texto);
-        cout << "\n " << texto;
-    }
+    if(arq == NULL)
+        cout << "\n Não há tarefas nesse dia\n";
+    else
+        while( !feof(arq) ){
+            fscanf(arq, "\n%[^\n]s", texto);
+            cout << "\n " << texto << "\n";
+        }
 }
 
 void exibeCalendario(){
@@ -363,18 +364,9 @@ void adicionaFixadas(){
     tarefasFixadas();
 }
 
-void tarefasFixadas(){
-    char opcao;
-    int cont = 0;
-
-    while( (opcao < 49 || opcao > 51) && (opcao != -32) ){
-        limparTela();
-
-        teclaVoltar();
-        cout << "              TAREFAS FIXADAS\n\n";
-        cout << "Listas de tarefas fixadas:\n";
-
-        FILE *lista = fopen("fixadasLista.txt", "r");
+void abrirArquivoLista(){
+     cout << "Listas de tarefas fixadas:\n";
+     FILE *lista = fopen("fixadasLista.txt", "r");
         char texto[100];
 
         //testarErro(lista);
@@ -388,12 +380,106 @@ void tarefasFixadas(){
             }
         }
 
-        fclose(lista);
+     fclose(lista);
+     free(lista);
+}
+
+void escalar(){
+    char tarefa[100], temp[100], texto[500];
+    char opcao;
+    int resp;
+    int cont = 0;
+
+    limparTela();
+    teclaVoltar();
+    cout << "\n                                  ESCALAÇÃO\n";
+
+    abrirArquivoLista();
+
+    cout << "\n\nDigite o nome da tarefa que deseja se escalar: ";
+
+    setbuf(stdin, NULL);
+    scanf("%[^\n]s", tarefa);
+
+    strcpy(temp, "tarefas/");
+    strcat(temp, tarefa);
+    strcat(temp, ".dat");
+
+    FILE *arq = fopen(temp, "a+");
+
+    if(arq == NULL)
+        cout << "\n\nEssa tarefa não existe\n";
+    else{
+        fscanf(arq, "%d", &resp);
+        cout << "\n Essa tarefa necessita de " << resp << " responsáveis\n";
+    }
+
+    fclose(arq);
+    free(arq);
+
+    strcpy(temp, "tarefas/responsaveis");
+    strcat(temp, tarefa);
+    strcat(temp, "R.txt");
+
+    cout << "\n-----------------------------------------------------------";
+
+    FILE *arq2 = fopen(temp, "r");
+    if(arq2 == NULL){
+        cout << "\n\n Não há responsáveis para essa tarefa ainda";
+        cont++;
+    }else{
+        fscanf(arq2, "%s", texto);
+    }
+
+    fclose(arq2);
+    free(arq2);
+
+    cout << "\n-----------------------------------------------------------";
+
+    if(cont != 0){
+        cout << "\n\nVocê deseja entrar na lista de responsáveis para essa atividade?\n";
+        cout << "\n1- Sim";
+        cout << "\n2- Não";
+
+        opcao = getch();
+        while(opcao < 49 && opcao > 50 && opcao != -32){
+            opcao = getch();
+        }
+
+        switch(opcao){
+            case '1':
+                FILE *arq3 = fopen(temp, "a+");
+                break;
+            case '2':
+
+                break;
+            case -32:
+                opcao = getch();
+                if(opcao == 75)
+                    tarefasFixadas();
+                break;
+        }
+    }
+
+}
+
+void tarefasFixadas(){
+    char opcao;
+    int cont = 0;
+
+    while( (opcao < 49 || opcao > 52) && (opcao != -32) ){
+        limparTela();
+
+        teclaVoltar();
+        cout << "              TAREFAS FIXADAS\n\n";
+
+        abrirArquivoLista();
 
         cout << "\n\n\nInsira um comando\n";
         cout << "1- Adicionar novas tarefas fixas\n";
         cout << "2- Visualizar alguma tarefa fixa\n";
         cout << "3- Excluir alguma tarefa fixa\n";
+        cout << "4- Escalação em alguma tarefa fixa\n";
 
         if(cont != 0)
             cout << "\n\nOpção inválida. Digite novamente um novo comando.\n";
@@ -415,6 +501,9 @@ void tarefasFixadas(){
         case '2':
             break;
         case '3':
+            break;
+        case '4':
+            escalar();
             break;
     }
 }
