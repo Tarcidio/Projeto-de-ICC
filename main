@@ -565,8 +565,16 @@ void tarefasFixadas(){
             adicionaFixadas();
             break;
         case '2':
+            limparTela();
+            cout << "\n Não implementamos essa parte do código ;(\n\n";
+            system("pause");
+            tarefasFixadas();
             break;
         case '3':
+            limparTela();
+            cout << "\n Não implementamos essa parte do código ;(\n\n";
+            system("pause");
+            tarefasFixadas();
             break;
         case '4':
             escalar();
