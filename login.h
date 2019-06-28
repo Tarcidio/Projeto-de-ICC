@@ -95,10 +95,10 @@ void login(char *name){
                     scanf("%[^\n]s", nome);
                     setbuf(stdin, NULL);
                     limparTela();
-                    if(strlen(nome)<=30){
+                    if(strlen(nome)<=30 && strlen(nome)>=3){
                         break;
                     }
-                    cout << "\nDigite um nome com menos de 30 caracteres\n\n";
+                    cout << "\nDigite um nome com menos de 30 ou mais de 2 caracteres\n\n";
                 }//Podemos colocar uma função que veriica se o usuario tem menos de 20 caracteres
 
                 cout << "\nQual será sua senha, " << nome <<  "?\n";
@@ -106,10 +106,10 @@ void login(char *name){
                     scanf("%[^\n]s", senha);
                     setbuf(stdin, NULL);
                     limparTela();
-                    if(strlen(senha)<=30){
+                    if(strlen(senha)<=30 && strlen(senha)>=3){
                         break;
                     }
-                    cout << "\nSério? Uma senha com mais de trinta caracteres?\nTem mais memória que esse computador aqui, escolhe uma menor ae\n\n";
+                    cout << "\nDigite uma senha com menos de 30 ou mais de 2 caracteres\n\n";
                 }
 
                 cout << "\nSeu nome é: " << nome;
@@ -128,7 +128,7 @@ void login(char *name){
             strcpy(pas,"senhas/");
             strcat(pas,nome);
             strcat(pas,".txt");
-            pass = fopen(pas,"a");
+            pass = fopen(pas,"w+");
             fprintf(pass,"%s",senha);
 
             nick = fopen("dadosLogin.txt","a");
