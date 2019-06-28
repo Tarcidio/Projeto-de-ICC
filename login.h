@@ -1,5 +1,5 @@
 void login(char *name){
-    for(;;){                                                                //mantendo a tela de login até a entrada do usuário
+    for(;;){                                            //mantendo a tela de login até a entrada do usuário
 
         char comando = 0;
         FILE *nick;
@@ -11,7 +11,7 @@ void login(char *name){
         cout << "\n--------------------------------------------------------------------------------";
 
         //sugestão: colocar getch
-        comando = getch();                                                //escolha do comando
+        comando = getch();                         //escolha do comando
         limparTela();
         //Seria interessante se pudessemos tratar o erro em que o usuário tentar logar quando ainda não há
         //nenhum registro de conta
@@ -63,15 +63,11 @@ void login(char *name){
                     }
 
                     cout << "\nSenha Errada! Tente Novamente\n\n";                         //Se a senha estiver errada
-                    system("pause");
-                    system("CLS");
                     fclose(nick);
                     fclose(pass);
                 }
                 if(caso == 2){                                                             //caso em que o usuario é inexistente
                     printf("\n Usuario Inexistente, por favor registre-se ou reescreva corretamente.\n\n");
-                    system("pause");
-                    system("CLS");
                 }
             }
             else{
@@ -82,20 +78,31 @@ void login(char *name){
         }
         if(comando == '2'){                                                               //Comando de cadastro
             int sair = 0;
-            char nome[30], senha[30], pas[100];
+            char nome[70], senha[70], pas[100];
             FILE *pass;
 
             while(sair != 1){
                 cout << "\nEscreva seu nome de usuário (use, no máximo, 30 caracteres):\n";
-                scanf("%[^\n]s", nome);
-                setbuf(stdin, NULL);
-                limparTela();
-                //Podemos colocar uma função que veriica se o usuario tem menos de 20 caracteres
+                for(;;){
+                    scanf("%[^\n]s", nome);
+                    setbuf(stdin, NULL);
+                    limparTela();
+                    if(strlen(nome)<=30){
+                        break;
+                    }
+                    cout << "\nDigite um nome com menos de 30 caracteres\n\n";
+                }//Podemos colocar uma função que veriica se o usuario tem menos de 20 caracteres
 
                 cout << "\nQual será sua senha, " << nome <<  "?\n";
-                scanf("%[^\n]s", senha);
-                setbuf(stdin, NULL);
-                limparTela();
+                for(;;){
+                    scanf("%[^\n]s", senha);
+                    setbuf(stdin, NULL);
+                    limparTela();
+                    if(strlen(senha)<=30){
+                        break;
+                    }
+                    cout << "\nSério? Uma senha com mais de trinta caracteres?\nTem mais memória que esse computador aqui, escolhe uma menor ae\n\n";
+                }
 
                 cout << "\nSeu nome é: " << nome;
                 cout << "\nSua senha é: " << senha;
