@@ -6,8 +6,9 @@ void login(char *name){
 
         cout << "--------------------------------------------------------------------------------";
         cout << "\nEnvie um comando:\n";
-        cout << "1 - Entrar\n\n";
+        cout << "1 - Entrar\n";
         cout << "2 - Se registrar\n";
+        cout << "3 - Sair";
         cout << "\n--------------------------------------------------------------------------------";
 
         //sugestão: colocar getch
@@ -21,59 +22,66 @@ void login(char *name){
             int caso = 2;
 
             nick = fopen("dadosLogin.txt","r");
-            cout << "\nDigite seu usuário:\n";
-
-            scanf("%[^\n]s", nome);
-            setbuf(stdin, NULL);
-            limparTela();
-
-            fgets(teste,30,nick);
-
-            if(!feof(nick)){
-                while( !feof(nick) ){
-                    fgets(teste,30,nick);                                              //testando os nomes
-                    if(strncmp(teste,nome,strlen(nome)) == 0){
-                        caso = 1;
-                        break;
-                    }
-                }
-
-                //Todos esses casos poderiam virar uma função
-                if(caso == 1){
-                    FILE *pass;
-                    char pas[100];
-
-                    strcpy(pas,"senhas/");
-                    strcat(pas,nome);
-                    strcat(pas,".txt");
-                    pass = fopen(pas,"r");
-
-                    cout << "\nDigite sua senha:\n";                                        //caso em que o usuario foi encontrado no arquivo
-                    scanf("%[^\n]s", senha);
-                    fflush(stdin);
-
-                    limparTela();
-                    fgets(teste,30,pass);
-                    if(strncmp(teste,senha,strlen(teste)) == 0){                            //inscrição da senha
-                        fclose(nick);
-                        fclose(pass);
-                        limparTela();
-                        strcpy(name,nome);
-                        return;
-                    }
-
-                    cout << "\nSenha Errada! Tente Novamente\n\n";                         //Se a senha estiver errada
-                    fclose(nick);
-                    fclose(pass);
-                }
-                if(caso == 2){                                                             //caso em que o usuario é inexistente
-                    printf("\n Usuario Inexistente, por favor registre-se ou reescreva corretamente.\n\n");
-                }
-            }
-            else{
+            if(nick == NULL){
                 cout<< "Não há usuários registrados ainda, seja o primeiro a se cadastrar\n\n";
                 system("pause");
                 system("CLS");
+            }
+            else{
+                cout << "\nDigite seu usuário:\n";
+
+                scanf("%[^\n]s", nome);
+                setbuf(stdin, NULL);
+                limparTela();
+
+                fgets(teste,30,nick);
+
+                if(!feof(nick)){
+                    while( !feof(nick) ){
+                        fgets(teste,30,nick);                                              //testando os nomes
+                        if(strncmp(teste,nome,strlen(nome)) == 0){
+                            caso = 1;
+                            break;
+                        }
+                    }
+
+                    //Todos esses casos poderiam virar uma função
+                    if(caso == 1){
+                        FILE *pass;
+                        char pas[100];
+
+                        strcpy(pas,"senhas/");
+                        strcat(pas,nome);
+                        strcat(pas,".txt");
+                        pass = fopen(pas,"r");
+
+                        cout << "\nDigite sua senha:\n";                                        //caso em que o usuario foi encontrado no arquivo
+                        scanf("%[^\n]s", senha);
+                        fflush(stdin);
+
+                        limparTela();
+                        fgets(teste,30,pass);
+                        if(strncmp(teste,senha,strlen(teste)) == 0){                            //inscrição da senha
+                            fclose(nick);
+                            fclose(pass);
+                            limparTela();
+                            strcpy(name,nome);
+                            return;
+                        }
+
+                        cout << "\nSenha Errada! Tente Novamente\n\n";                         //Se a senha estiver errada
+                        fclose(nick);
+                        fclose(pass);
+                    }
+                    if(caso == 2){                                                             //caso em que o usuario é inexistente
+                        printf("\n Usuario Inexistente, por favor registre-se ou reescreva corretamente.\n\n");
+                    }
+                }
+                else{
+                    cout<< "Não há usuários registrados ainda, seja o primeiro a se cadastrar\n\n";
+                    system("pause");
+                    system("CLS");
+                }
             }
         }
         if(comando == '2'){                                                               //Comando de cadastro
@@ -131,7 +139,10 @@ void login(char *name){
             free(nick);
             free(pass);
         }
-        if(comando != '1' && comando != '2'){
+        if(comando == '3'){
+            exit(1);
+        }
+        if(comando != '1' && comando != '2' && comando != '3'){
             printf("\nComando Inválido!\n\n");
             system("pause");
             system("CLS");
