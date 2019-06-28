@@ -12,6 +12,7 @@ char usuario123[1000];
 
 using namespace std;
 
+int main();
 void menuPrincipal();
 void calendario();
 void tarefasFixadas();
@@ -403,6 +404,8 @@ void criarArquivo(char *temp){
                     opcao = getch();
                     if(opcao == 75)
                         tarefasFixadas();
+                    else
+                        escalar();
                     break;
             }
         }
@@ -453,6 +456,8 @@ void escalar(){
                 opcao = getch();
                 if(opcao == 75)
                     tarefasFixadas();
+                else
+                    escalar();
                 break;
         }
 
@@ -472,8 +477,7 @@ void escalar(){
     FILE *arq2 = fopen(temp, "r");
 
     if(arq2 == NULL){
-        cout << "\n\n Não há responsáveis para essa tarefa ainda";
-        cont++;
+        cout << "\n Não há responsáveis para essa tarefa ainda";
     }else{
         cout << "\n-----------------------------------------------------------";
         cout << "\nLista de responsáveis\n";
@@ -486,32 +490,40 @@ void escalar(){
         free(arq2);
     }
 
-    if(cont == 0){
-        cout << "\n\nVocê deseja entrar na lista de responsáveis para essa atividade?\n";
-        cout << "\n1- Sim";
-        cout << "\n2- Não";
+    cout << "\n\nVocê deseja entrar na lista de responsáveis para essa atividade?\n";
+    cout << "\n1- Sim";
+    cout << "\n2- Não";
+    cout << "\n3- Excluir meu nome da lista";
 
+    opcao = getch();
+    while(opcao < 49 && opcao > 50 && opcao != -32){
         opcao = getch();
-        while(opcao < 49 && opcao > 50 && opcao != -32){
-            opcao = getch();
-        }
-
-        //futuramente criar a opcao de perguntar antes se deseja voltar ou se deseja escolher alguma tarefa em especial
-
-        switch(opcao){
-            case '1':
-                criarArquivo(temp);
-                break;
-            case '2':
-                tarefasFixadas();
-                break;
-            case -32:
-                opcao = getch();
-                if(opcao == 75)
-                    tarefasFixadas();
-                break;
-        }
     }
+
+    //futuramente criar a opcao de perguntar antes se deseja voltar ou se deseja escolher alguma tarefa em especial
+
+    switch(opcao){
+        case '1':
+            criarArquivo(temp);
+            break;
+        case '2':
+            tarefasFixadas();
+            break;
+        case '3':
+            limparTela();
+            cout << "\n Não implementamos essa parte do código ;(\n\n";
+            system("pause");
+            tarefasFixadas();
+            break;
+        case -32:
+            opcao = getch();
+            if(opcao == 75)
+                tarefasFixadas();
+            else
+                escalar();
+            break;
+    }
+
 
 }
 
@@ -546,6 +558,8 @@ void tarefasFixadas(){
             opcao = getch();
             if(opcao == 75)
                 calendario();
+            else
+                tarefasFixadas();
             break;
         case  '1':
             adicionaFixadas();
@@ -570,9 +584,8 @@ void calendario(){
         exibeCalendario();
 
         cout << "\nInsira um comando\n";
-        cout << "1- Inserir tarefas fixadas\n";
-        cout << "2- Inserir tarefas semanais\n";
-        cout << "3- Inserir tarefas mensais\n";
+        cout << "1- Tarefas fixadas\n";
+        cout << "2- Tarefas mensais\n";
 
         if(cont != 0)
             cout << "\n\nOpção inválida. Digite novamente um novo comando.\n";
@@ -589,13 +602,17 @@ void calendario(){
             opcao = getch();
             if(opcao == 75)
                 menuPrincipal();
+            else
+                calendario();
             break;
         case '1':
             tarefasFixadas();
             break;
         case '2':
-            break;
-        case '3':
+            limparTela();
+            cout << "\n Essa função não foi implementada, porém, seria muito semelhante a aba de tarefas fixadas\n";
+            system("pause");
+            calendario();
             break;
     }
 }
@@ -676,7 +693,7 @@ void excluirMensagem(int *num){
     }else{
         cout << "\nErro ao deletar a mensagem.\n";
         cout << " Talvez ela não exista.\n";
-        exit(1);
+        system("pause");
     }
 
     free(titulo);
@@ -763,6 +780,8 @@ void recados(){
                 opcao = getch();
                 if(opcao == 75)
                     menuPrincipal();
+                else
+                    recados();
                 break;
             case '1':
                 adicionarMensagem();
@@ -935,12 +954,13 @@ void menuPrincipal(){
     char opcao;
     int cont = 0;
 
-    while(opcao < 49 || opcao > 52){
+    while(opcao < '1' || opcao > '4'){
         limparTela();
         cout << "    Aplicação ComApp    \n";
         cout << "1- Calendario\n";
         cout << "2- Membros\n";
         cout << "3- Mensagens importantes\n";
+        cout << "4- Sair\n";
 
         if(cont != 0)
             cout << "\n\nOpção inválida. Digite novamente um novo comando.\n";
@@ -964,6 +984,11 @@ void menuPrincipal(){
             //seria interessante se fosse criado uma função para essa semelhanças
             recados();
             break;
+        case '4':
+            limparTela();
+            main();
+            break;
+
     }
 }
 
@@ -973,6 +998,7 @@ int main(){
     SetConsoleTitle("ComApp");
 
     char nome[100];
+
     login(nome);
     strcpy(usuario123,nome);
 
@@ -980,7 +1006,7 @@ int main(){
     cout << "\n\n     Bem-vindo, " << nome;
     cout << "\n\n---------------------------------------------";
 
-    //Sleep(3000);
+    Sleep(3000);
 
     menuPrincipal();
 
