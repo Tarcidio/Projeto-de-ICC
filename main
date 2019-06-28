@@ -826,16 +826,27 @@ void addMembros(){
 
     while(sair != 1){
         cout << "\nEscreva seu nome de usuário (use, no máximo, 30 caracteres):\n";
-        setbuf(stdin,NULL);
-        scanf("%[^\n]s", nome);
-        setbuf(stdin, NULL);
-        limparTela();
-        //Podemos colocar uma função que veriica se o usuario tem menos de 20 caracteres
+        for(;;){
+            setbuf(stdin,NULL);
+            scanf("%[^\n]s", nome);
+            setbuf(stdin, NULL);
+            limparTela();
+            if(strlen(nome)<=30 && strlen(nome)>=3){
+                break;
+            }
+            cout << "\nDigite um nome com menos de 30 ou mais de 2 caracteres\n\n";
+        }//Podemos colocar uma função que veriica se o usuario tem menos de 20 caracteres
 
         cout << "\nQual será sua senha, " << nome <<  "?\n";
-        scanf("%[^\n]s", senha);
-        setbuf(stdin, NULL);
-        limparTela();
+        for(;;){
+            scanf("%[^\n]s", senha);
+            setbuf(stdin, NULL);
+            limparTela();
+            if(strlen(senha)<=30 && strlen(senha)>=3){
+                break;
+            }
+            cout << "\nDigite uma senha com menos de 30 ou mais de 2 caracteres\n\n";
+        }
 
         cout << "\nSeu nome é: " << nome;
         cout << "\nSua senha é: " << senha;
@@ -853,7 +864,7 @@ void addMembros(){
     strcpy(pas,"senhas/");
     strcat(pas,nome);
     strcat(pas,".txt");
-    pass = fopen(pas,"a");
+    pass = fopen(pas,"w+");
     fprintf(pass,"%s",senha);
 
     nick = fopen("dadosLogin.txt","a");
@@ -921,7 +932,7 @@ void membros(){
     char opcao;
     int cont = 0;
 
-    while(opcao < 49 || opcao > 52){
+    while(opcao < 49 || opcao > 51){
         limparTela();
         cout << "    Membros    \n";
         cout <<"--------------------------------------\n";
